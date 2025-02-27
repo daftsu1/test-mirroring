@@ -1,0 +1,23 @@
+name: Mirror to GitLab
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Clona todo el historial
+
+      - name: Configure GitLab Remote
+        run: |
+          # Construye la URL con el deploy token
+          git remote add gitlab "https://${{ secrets.GITLAB_USERNAME }}:${{ secrets.GITLAB_TOKEN }}@gitlab.com/daftsu1/hello-world.git"
+
+      - name: Push to GitLab
+        run: |
+          git push --mirror gitlab
