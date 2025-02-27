@@ -1,0 +1,19 @@
+name: Mirroring
+
+on:
+  push:
+    branches: [ "master" ] # Trigger al hacer push en main
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror a GitLab
+        run: |
+          git clone --mirror https://github.com/${{ github.repository }}.git
+          cd ${GITHUB_REPOSITORY#*/}.git
+          git remote add destino https://gitlab.com/daftsu1/hello-world.git
+          git push --mirror destino
+          # Usa un token de acceso si el destino requiere autenticación
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }} # Configura este secreto en GitHub
