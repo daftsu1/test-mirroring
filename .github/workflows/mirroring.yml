@@ -1,25 +1,30 @@
-name: Mirror Repository
+name: Mirroring
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'  # Ejecutar cada 6 horas
   push:
-    branches: [ main, master ]  # Ejecutar cuando se hace push a main o master
-  workflow_dispatch:  # Permitir ejecución manual
+    branches: ['*']
+  workflow_dispatch:
 
 jobs:
-  mirror:
+  to_target_repo:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Source
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
-      - name: Push to mirror repository
-        uses: pixta-dev/repository-mirroring-action@v1
+      
+      - name: Push to target repo
+        uses: actions/checkout@v3
         with:
-          target_repo_url:
-            https://${{ secrets.MIRROR_PAT }}@github.com/daftsu1/test-mirroring2.git
-          #ssh_private_key:
-            #${{ secrets.MIRROR_SSH_KEY }}  # Solo si usas SSH en lugar de PAT
+          repository: daftsu1/test-mirroring2
+          token: ${{ secrets.MIRROR_PAT }}
+          path: target-repo
+      
+      - name: Copy files
+        run: |
+          rm -rf target-repo/.git
+          cp -r .git target-repo/
+          cd target-repo
+          git push origin --all --force
+          git push origin --tags --force
