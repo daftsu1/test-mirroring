@@ -14,7 +14,17 @@ jobs:
         with:
           fetch-depth: 0
       
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+      - name: Add GitHub to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+      
       - name: Push to mirror repository
         run: |
-          git remote add mirror https://${{ github.actor }}:${{ secrets.MIRROR_PAT }}@github.com/daftsu1/test-mirroring2.git
+          git remote add mirror git@github.com:daftsu1/test-mirroring2.git
           git push --mirror mirror
